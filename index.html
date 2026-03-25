@@ -242,8 +242,18 @@ body.leitura-facilitada button {
 </head>
 <body>
   <header>
-    <h1>Saúde em Casa</h1>
-    <p>Protótipo de teste com armazenamento local no navegador</p>
+     <div class="header-bar">
+    <div class="header-text">
+      <h1>Saúde em Casa</h1>
+      <p>Protótipo de teste com armazenamento local no navegador</p>
+    </div>
+
+    <div class="accessibility-controls">
+      <button type="button" class="btn-header" onclick="alterarFonte(0.1)">A+</button>
+      <button type="button" class="btn-header" onclick="alterarFonte(-0.1)">A-</button>
+      <button type="button" class="btn-header" onclick="toggleTema()">🌙/☀</button>
+    </div>
+  </div>
   </header>
 
   <div class="container">
@@ -1087,11 +1097,48 @@ function loginUpdateHandler(e) {
       document.getElementById('printHistorico').innerHTML = tabela;
     }
 
-    document.getElementById('cadastroForm').addEventListener('submit', cadastroHandler);
-    document.getElementById('loginForm').addEventListener('submit', loginHandler);
-    document.getElementById('perfilForm').addEventListener('submit', perfilHandler);
-    document.getElementById('medicaoForm').addEventListener('submit', medicaoHandler);
-    document.getElementById('loginUpdateForm').addEventListener('submit', loginUpdateHandler);
+<script>
+function alterarFonte(valor) {
+  const atual = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-scale')) || 1;
+  let novo = atual + valor;
+
+  if (novo < 0.8) novo = 0.8;
+  if (novo > 1.6) novo = 1.6;
+
+  document.documentElement.style.setProperty('--font-scale', novo);
+  localStorage.setItem('sec_font_scale', novo);
+}
+
+function toggleTema() {
+  document.body.classList.toggle('tema-noite');
+
+  const temaAtual = document.body.classList.contains('tema-noite') ? 'noite' : 'dia';
+  localStorage.setItem('sec_tema', temaAtual);
+}
+
+function aplicarPreferenciasVisuais() {
+  const fontScaleSalvo = localStorage.getItem('sec_font_scale');
+  const temaSalvo = localStorage.getItem('sec_tema');
+
+  if (fontScaleSalvo) {
+    document.documentElement.style.setProperty('--font-scale', fontScaleSalvo);
+  }
+
+  if (temaSalvo === 'noite') {
+    document.body.classList.add('tema-noite');
+  } else {
+    document.body.classList.remove('tema-noite');
+  }
+}
+</script>
+    
+   document.getElementById('cadastroForm').addEventListener('submit', cadastroHandler);
+   document.getElementById('loginForm').addEventListener('submit', loginHandler);
+   document.getElementById('perfilForm').addEventListener('submit', perfilHandler);
+   document.getElementById('medicaoForm').addEventListener('submit', medicaoHandler);
+  document.getElementById('loginUpdateForm').addEventListener('submit', loginUpdateHandler);
+
+aplicarPreferenciasVisuais();
       </script>
 
   <div vw class="enabled">
