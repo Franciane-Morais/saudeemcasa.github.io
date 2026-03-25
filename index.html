@@ -148,6 +148,59 @@
       grid-template-columns: 1fr 1fr;
       gap: 18px;
     }
+
+    .health-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.health-mini-card {
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.health-mini-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.health-mini-card .value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.health-mini-card .sub {
+  font-size: 13px;
+  color: #475569;
+}
+
+.card-peach { background: #f7cfc2; }
+.card-green { background: #cfeecf; }
+.card-yellow { background: #f3e7b8; }
+.card-lilac { background: #e7c8ee; }
+.card-pink { background: #f5d7dc; }
+.card-blue { background: #d9eaf9; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.charts-grid canvas {
+  width: 100% !important;
+  max-height: 280px;
+}
+
+@media (max-width: 860px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
     .summary-box {
       padding: 14px;
       background: #f8fafc;
@@ -718,7 +771,12 @@ body.leitura-facilitada button {
   </select>
 </div>
           </div>
-
+<div class="grid-2">
+  <div>
+    <label for="medTemperatura">Temperatura corporal (°C)</label>
+    <input id="medTemperatura" type="number" step="0.1" placeholder="Ex.: 36.5" />
+  </div>
+</div>
           <div>
             <label for="medObs">Observações</label>
             <textarea id="medObs" placeholder="Ex.: jejum, repouso, após refeição, sintomas"></textarea>
@@ -734,38 +792,70 @@ body.leitura-facilitada button {
     </section>
 
     <!-- DASHBOARD -->
-    <section id="dashboardScreen" class="screen">
-      <div class="top-actions no-print">
-        <button class="btn-primary" onclick="goToScreen('medicaoScreen')">Nova medição</button>
-        <button class="btn-dark" onclick="abrirTelaImpressao()">IMPRIMIR HISTÓRICO</button>
-      </div>
+   <section id="dashboardScreen" class="screen">
+  <div class="top-actions no-print">
+    <button class="btn-primary" onclick="goToScreen('medicaoScreen')">Nova medição</button>
+    <button class="btn-dark" onclick="abrirTelaImpressao()">IMPRIMIR HISTÓRICO</button>
+  </div>
 
-      <div class="dashboard-grid">
-        <div class="card">
-          <h2>Resumo do Perfil</h2>
-          <div id="dashboardPerfil"></div>
-        </div>
+  <div class="card">
+    <h2>Monitoramento</h2>
+    <div id="healthCards" class="health-cards-grid"></div>
+  </div>
 
-        <div class="card">
-          <h2>Última Medição</h2>
-          <div id="dashboardUltimaMedicao"></div>
-        </div>
-      </div>
+  <div class="dashboard-grid">
+    <div class="card">
+      <h2>Resumo do Perfil</h2>
+      <div id="dashboardPerfil"></div>
+    </div>
 
-      <div class="card">
-        <h2>Histórico de Medições</h2>
-        <div id="dashboardHistorico"></div>
-      </div>
+    <div class="card">
+      <h2>Última Medição</h2>
+      <div id="dashboardUltimaMedicao"></div>
+    </div>
+  </div>
 
-      <div class="card">
-        <h2>Gráfico de Glicemia</h2>
-        <canvas id="glicemiaChart"></canvas>
-      </div>
-      <div class="top-actions no-print">
-  <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
-</div>
-    </section>
+  <div class="card">
+    <h2>Histórico de Medições</h2>
+    <div id="dashboardHistorico"></div>
+  </div>
 
+  <div class="charts-grid">
+    <div class="card">
+      <h3>Glicemia</h3>
+      <canvas id="glicemiaChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Pressão Arterial</h3>
+      <canvas id="pressaoChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Frequência Cardíaca</h3>
+      <canvas id="fcChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Saturação de Oxigênio</h3>
+      <canvas id="saturacaoChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Peso</h3>
+      <canvas id="pesoChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Temperatura</h3>
+      <canvas id="temperaturaChart"></canvas>
+    </div>
+  </div>
+
+  <div class="top-actions no-print">
+    <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+  </div>
+</section>
     <!-- IMPRESSÃO -->
     <section id="printScreen" class="screen">
       <!-- ATUALIZAÇÃO DE LOGIN E SENHA -->
@@ -830,6 +920,11 @@ body.leitura-facilitada button {
     };
 
     let glicemiaChart = null;
+    let pressaoChart = null;
+    let fcChart = null;
+    let saturacaoChart = null;
+    let pesoChart = null;
+    let temperaturaChart = null;
     
 
     function goToScreen(id) {
@@ -963,16 +1058,17 @@ function loginUpdateHandler(e) {
       e.preventDefault();
 
       const medicao = {
-        data: document.getElementById('medData').value,
-        horario: document.getElementById('medHorario').value,
-        sistolica: document.getElementById('medSistolica').value,
-        diastolica: document.getElementById('medDiastolica').value,
-        glicemia: document.getElementById('medGlicemia').value,
-        frequencia: document.getElementById('medFc').value,
-        saturacao: document.getElementById('medSaturacao').value,
-        peso: document.getElementById('medPeso').value,
-        observacoes: document.getElementById('medObs').value.trim()
-      };
+  data: document.getElementById('medData').value,
+  horario: document.getElementById('medHorario').value,
+  sistolica: document.getElementById('medSistolica').value,
+  diastolica: document.getElementById('medDiastolica').value,
+  glicemia: document.getElementById('medGlicemia').value,
+  frequencia: document.getElementById('medFc').value,
+  saturacao: document.getElementById('medSaturacao').value,
+  peso: document.getElementById('medPeso').value,
+  temperatura: document.getElementById('medTemperatura').value,
+  observacoes: document.getElementById('medObs').value.trim()
+};
 
       const medicoes = getData(STORAGE_KEYS.medicoes, []);
       medicoes.push(medicao);
@@ -1008,6 +1104,50 @@ function loginUpdateHandler(e) {
       const medicoes = getData(STORAGE_KEYS.medicoes, []);
       const ultima = medicoes.length ? medicoes[medicoes.length - 1] : null;
 
+      document.getElementById('healthCards').innerHTML = `
+  <div class="health-mini-card card-peach">
+    <h4>Altura</h4>
+    <div class="value">${perfil.altura ? perfil.altura + ' cm' : '--'}</div>
+    <div class="sub">Altura cadastrada</div>
+  </div>
+
+  <div class="health-mini-card card-peach">
+    <h4>Peso</h4>
+    <div class="value">${ultima && ultima.peso ? ultima.peso + ' kg' : '--'}</div>
+    <div class="sub">Último valor registrado</div>
+  </div>
+
+  <div class="health-mini-card card-lilac">
+    <h4>Pressão arterial</h4>
+    <div class="value">${ultima ? `${ultima.sistolica || '--'}/${ultima.diastolica || '--'}` : '--'}</div>
+    <div class="sub">${ultima ? classificarPressao(ultima.sistolica, ultima.diastolica) : 'Sem dados'}</div>
+  </div>
+
+  <div class="health-mini-card card-pink">
+    <h4>Glicose</h4>
+    <div class="value">${ultima && ultima.glicemia ? ultima.glicemia : '--'}</div>
+    <div class="sub">mg/dL</div>
+  </div>
+
+  <div class="health-mini-card card-blue">
+    <h4>Frequência cardíaca</h4>
+    <div class="value">${ultima && ultima.frequencia ? ultima.frequencia : '--'}</div>
+    <div class="sub">bpm</div>
+  </div>
+
+  <div class="health-mini-card card-blue">
+    <h4>Oximetria</h4>
+    <div class="value">${ultima && ultima.saturacao ? ultima.saturacao : '--'}</div>
+    <div class="sub">%</div>
+  </div>
+
+  <div class="health-mini-card card-blue">
+    <h4>Temperatura</h4>
+    <div class="value">${ultima && ultima.temperatura ? ultima.temperatura : '--'}</div>
+    <div class="sub">°C</div>
+  </div>
+`;
+
       document.getElementById('dashboardPerfil').innerHTML = `
         <div class="summary-box"><strong>Nome:</strong> ${perfil.nome || '-'}</div>
         <div class="summary-box"><strong>Data de nascimento:</strong> ${perfil.nascimento || '-'}</div>
@@ -1031,8 +1171,9 @@ function loginUpdateHandler(e) {
         <div class="summary-box"><strong>Classificação da glicemia:</strong> ${classificarGlicemia(ultima.glicemia)}</div>
         <div class="summary-box"><strong>Frequência cardíaca:</strong> ${ultima.frequencia || '-'} bpm</div>
         <div class="summary-box"><strong>Saturação:</strong> ${ultima.saturacao || '-'} %</div>
-        <div class="summary-box"><strong>Peso:</strong> ${ultima.peso || '-'} kg</div>
-        <div class="summary-box"><strong>Observações:</strong> ${ultima.observacoes || '-'}</div>
+       <div class="summary-box"><strong>Peso:</strong> ${ultima.peso || '-'} kg</div>
+<div class="summary-box"><strong>Temperatura:</strong> ${ultima.temperatura || '-'} °C</div>
+<div class="summary-box"><strong>Observações:</strong> ${ultima.observacoes || '-'}</div>
       ` : `<p>Nenhuma medição registrada.</p>`;
 
       if (!medicoes.length) {
@@ -1079,32 +1220,108 @@ function loginUpdateHandler(e) {
       renderChart(medicoes);
     }
 
-    function renderChart(medicoes) {
-      const ctx = document.getElementById('glicemiaChart').getContext('2d');
-      if (glicemiaChart) glicemiaChart.destroy();
+   function renderChart(medicoes) {
+  const labels = medicoes.map(m => `${m.data || ''} ${m.horario || ''}`.trim());
 
-      glicemiaChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: medicoes.map(m => m.data || ''),
-          datasets: [{
-            label: 'Glicemia (mg/dL)',
-            data: medicoes.map(m => Number(m.glicemia || 0)),
-            borderWidth: 2,
-            tension: 0.25
-          }]
+  if (glicemiaChart) glicemiaChart.destroy();
+  if (pressaoChart) pressaoChart.destroy();
+  if (fcChart) fcChart.destroy();
+  if (saturacaoChart) saturacaoChart.destroy();
+  if (pesoChart) pesoChart.destroy();
+  if (temperaturaChart) temperaturaChart.destroy();
+
+  glicemiaChart = new Chart(document.getElementById('glicemiaChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Glicemia (mg/dL)',
+        data: medicoes.map(m => Number(m.glicemia || 0)),
+        borderWidth: 2,
+        tension: 0.25
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  pressaoChart = new Chart(document.getElementById('pressaoChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Sistólica (mmHg)',
+          data: medicoes.map(m => Number(m.sistolica || 0)),
+          borderWidth: 2,
+          tension: 0.25
         },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: 'Evolução da glicemia'
-            }
-          }
+        {
+          label: 'Diastólica (mmHg)',
+          data: medicoes.map(m => Number(m.diastolica || 0)),
+          borderWidth: 2,
+          tension: 0.25
         }
-      });
-    }
+      ]
+    },
+    options: { responsive: true }
+  });
+
+  fcChart = new Chart(document.getElementById('fcChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Frequência cardíaca (bpm)',
+        data: medicoes.map(m => Number(m.frequencia || 0)),
+        borderWidth: 2,
+        tension: 0.25
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  saturacaoChart = new Chart(document.getElementById('saturacaoChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Saturação (%)',
+        data: medicoes.map(m => Number(m.saturacao || 0)),
+        borderWidth: 2,
+        tension: 0.25
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  pesoChart = new Chart(document.getElementById('pesoChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Peso (kg)',
+        data: medicoes.map(m => Number(m.peso || 0)),
+        borderWidth: 2,
+        tension: 0.25
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  temperaturaChart = new Chart(document.getElementById('temperaturaChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Temperatura (°C)',
+        data: medicoes.map(m => Number(m.temperatura || 0)),
+        borderWidth: 2,
+        tension: 0.25
+      }]
+    },
+    options: { responsive: true }
+  });
+}
 
     function abrirTelaImpressao() {
       goToScreen('printScreen');
@@ -1145,8 +1362,8 @@ function loginUpdateHandler(e) {
               <th>Glicemia</th>
               <th>Class. Glicemia</th>
               <th>FC</th>
-              <th>Sat.</th>
-              <th>Peso</th>
+             <td>${m.saturacao || '-'}</td>
+             <td>${m.peso || '-'}</td>
               <th>Observações</th>
             </tr>
           </thead>
@@ -1165,6 +1382,7 @@ function loginUpdateHandler(e) {
             <td>${m.frequencia || '-'}</td>
             <td>${m.saturacao || '-'}</td>
             <td>${m.peso || '-'}</td>
+            <td>${m.temperatura || '-'}</td>
             <td>${m.observacoes || '-'}</td>
           </tr>
         `;
@@ -1198,6 +1416,44 @@ function aplicarPreferenciasVisuais() {
 
   if (fontScaleSalvo) {
     document.documentElement.style.setProperty('--font-scale', fontScaleSalvo);
+  }
+
+  if (temaSalvo === 'noite') {
+    document.body.classList.add('tema-noite');
+  } else {
+    document.body.classList.remove('tema-noite');
+  }
+}
+    function alterarFonte(valor) {
+  const atualBruto = getComputedStyle(document.documentElement)
+    .getPropertyValue('--font-scale')
+    .trim();
+
+  const atual = parseFloat(atualBruto) || 1;
+  let novo = atual + valor;
+
+  if (novo < 0.8) novo = 0.8;
+  if (novo > 1.6) novo = 1.6;
+
+  document.documentElement.style.setProperty('--font-scale', novo);
+  localStorage.setItem('sec_font_scale', novo);
+}
+
+function toggleTema() {
+  document.body.classList.toggle('tema-noite');
+
+  const temaAtual = document.body.classList.contains('tema-noite') ? 'noite' : 'dia';
+  localStorage.setItem('sec_tema', temaAtual);
+}
+
+function aplicarPreferenciasVisuais() {
+  const fontScaleSalvo = localStorage.getItem('sec_font_scale');
+  const temaSalvo = localStorage.getItem('sec_tema');
+
+  if (fontScaleSalvo) {
+    document.documentElement.style.setProperty('--font-scale', fontScaleSalvo);
+  } else {
+    document.documentElement.style.setProperty('--font-scale', 1);
   }
 
   if (temaSalvo === 'noite') {
