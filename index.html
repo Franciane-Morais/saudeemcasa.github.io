@@ -1,0 +1,1108 @@
+!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saúde em Casa - Protótipo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+        body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+    header {
+      background: #0f62fe;
+      color: white;
+      padding: 18px 24px;
+      text-align: center;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+    }
+    h1, h2, h3 { margin-top: 0; }
+    h2 { color: #0f62fe; }
+    p { line-height: 1.5; }
+    form {
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 15px;
+      border-radius: 8px;
+    }
+    input, select, textarea {
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    button {
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-primary {
+      background: #0f62fe;
+      color: white;
+    }
+    .btn-primary:hover { background: #0b4ecc; }
+    .btn-secondary {
+      background: #10b981;
+      color: white;
+    }
+    .btn-secondary:hover { background: #0b8f65; }
+    .btn-dark {
+      background: #111827;
+      color: white;
+    }
+    .btn-dark:hover { background: #000; }
+    .hint {
+      background: #eef6ff;
+      border-left: 5px solid #0f62fe;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .summary-box {
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #dbe3ee;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #eaf2ff;
+    }
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .small {
+      font-size: 13px;
+      color: #475569;
+    }
+    .print-area {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .print-title {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    :root {
+  --font-scale: 1;
+}
+
+body {
+  font-size: calc(16px * var(--font-scale));
+}
+
+body.alto-contraste {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.alto-contraste header,
+body.alto-contraste .card,
+body.alto-contraste .print-area,
+body.alto-contraste table,
+body.alto-contraste th,
+body.alto-contraste td,
+body.alto-contraste input,
+body.alto-contraste select,
+body.alto-contraste textarea {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+body.alto-contraste .hint,
+body.alto-contraste .summary-box {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+body.alto-contraste .btn-primary,
+body.alto-contraste .btn-secondary,
+body.alto-contraste .btn-dark {
+  background: #fff !important;
+  color: #000 !important;
+  border: 2px solid #fff !important;
+}
+
+body.leitura-facilitada {
+  letter-spacing: 0.4px;
+  line-height: 1.8;
+}
+
+body.leitura-facilitada p,
+body.leitura-facilitada label,
+body.leitura-facilitada li,
+body.leitura-facilitada td,
+body.leitura-facilitada th,
+body.leitura-facilitada input,
+body.leitura-facilitada select,
+body.leitura-facilitada textarea,
+body.leitura-facilitada button {
+  font-size: 1.08em;
+}
+    @media (max-width: 860px) {
+      .grid-2, .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media print {
+      body {
+        background: white;
+      }
+      header, .top-actions, .no-print {
+        display: none !important;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .screen {
+        display: none !important;
+      }
+      #printScreen {
+        display: block !important;
+      }
+      .print-area {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Saúde em Casa</h1>
+    <p>Protótipo de teste com armazenamento local no navegador</p>
+  </header>
+
+  <div class="container">
+
+    <!-- HOME + CADASTRO -->
+    <section id="homeScreen" class="screen active">
+      <div class="grid-2">
+        <div class="card">
+          <h2>Home</h2>
+          <p>
+            Esta versão foi criada para gerar <strong>resultados preliminares</strong> do projeto.
+            Os dados ficam gravados apenas no navegador usando <strong>localStorage</strong>.
+          </p>
+          <div class="hint">
+            <strong>Usuário de teste:</strong><br>
+            Nome do usuário: <strong>teste</strong><br>
+            E-mail: <strong>teste@teste.com</strong><br>
+            Senha: <strong>teste</strong>
+          </div>
+          <p class="small" style="margin-top:12px;">
+            No login, o protótipo aceita <strong>teste@teste.com</strong> ou <strong>teste</strong> no campo de e-mail,
+            e <strong>teste</strong> no campo de senha.
+          </p>
+          <h3>Fluxo do protótipo</h3>
+          <ol>
+            <li>Cadastro</li>
+            <li>Login</li>
+            <li>Perfil de Saúde</li>
+            <li>Registrar Medição</li>
+            <li>Dashboard</li>
+            <li>Imprimir Histórico / Salvar em PDF</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h2>Cadastro</h2>
+          <form id="cadastroForm">
+            <div>
+              <label for="cadNome">Nome</label>
+              <input id="cadNome" type="text" placeholder="Digite seu nome" />
+            </div>
+            <div>
+              <label for="cadEmail">E-mail</label>
+              <input id="cadEmail" type="email" placeholder="Digite seu e-mail" />
+            </div>
+            <div>
+               <label for="cadCelular">Celular</label>
+               <input id="cadCelular" type="tel" placeholder="Ex.: (11) 99999-9999" />
+            </div>
+            <div>
+              <label for="cadSenha">Senha</label>
+              <input id="cadSenha" type="password" placeholder="Digite sua senha" />
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+               <input id="cadTermos" type="checkbox" style="width:auto;" />
+                <label for="cadTermos" style="margin:0; font-weight:normal;">
+    Eu aceito os Termos de Uso & Políticas de Privacidade
+  </label>
+</div>
+            <button type="submit" class="btn-primary">Cadastrar</button>
+          </form>
+          <div id="cadastroMsg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="loginScreen" class="screen">
+      <div class="card" style="max-width: 520px; margin: 0 auto;">
+        <h2>Login</h2>
+        <div class="hint">
+          Para entrar neste protótipo, use:
+          <strong>teste@teste.com</strong> ou <strong>teste</strong> no campo de e-mail,
+          e <strong>teste</strong> no campo de senha.
+        </div>
+        <form id="loginForm" style="margin-top: 14px;">
+          <div>
+            <label for="loginEmail">E-mail</label>
+            <input id="loginEmail" type="text" placeholder="Ex.: teste@teste.com ou teste" />
+          </div>
+          <div>
+            <label for="loginSenha">Senha</label>
+            <input id="loginSenha" type="password" placeholder="Digite a senha" />
+          </div>
+          <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+        <div id="loginMsg"></div>
+      </div>
+    </section>
+
+    <!-- MENU PRINCIPAL -->
+<section id="menuScreen" class="screen">
+  <div class="card" style="max-width: 700px; margin: 0 auto;">
+    <h2>Menu de Opções</h2>
+    <p class="small">Selecione uma opção para continuar.</p>
+
+    <div style="display:grid; gap:12px; margin-top:18px;">
+      <button class="btn-primary" onclick="goToScreen('homeScreen')">
+        HOME – retornar para página inicial
+      </button>
+
+      <button class="btn-secondary" onclick="goToScreen('medicaoScreen')">
+        Anotação - direciona para anotar os dados diários
+      </button>
+
+      <button class="btn-dark" onclick="goToScreen('dashboardScreen')">
+        Gráficos - apresenta os dados e tem opção de gerar o relatório
+      </button>
+
+      <button class="btn-primary" onclick="goToScreen('perfilScreen')">
+        Atualização do perfil de saúde
+      </button>
+
+      <button class="btn-secondary" onclick="goToScreen('loginUpdateScreen')">
+        Atualização de login e senha
+      </button>
+    </div>
+      </div>
+</section>
+
+    <!-- PERFIL DE SAÚDE -->
+    <section id="perfilScreen" class="screen">
+      <div class="card">
+        <h2>Perfil do Usuário / Perfil de Saúde</h2>
+        <form id="perfilForm">
+          <div class="grid-2">
+            <div>
+              <label for="perfilNome">Nome completo</label>
+              <input id="perfilNome" type="text" />
+            </div>
+            <div>
+              <label for="perfilNascimento">Data de nascimento</label>
+              <input id="perfilNascimento" type="date" />
+            </div>
+
+            <div>
+              <label for="perfilSexo">Sexo</label>
+              <select id="perfilSexo">
+                <option value="">Selecione</option>
+                <option>Masculino</option>
+                <option>Feminino</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div>
+              <label for="perfilAltura">Altura (cm)</label>
+              <input id="perfilAltura" type="number" placeholder="Ex.: 170" />
+            </div>
+
+            <div>
+              <label for="perfilPesoBase">Peso atual (kg)</label>
+              <input id="perfilPesoBase" type="number" step="0.1" placeholder="Ex.: 72.5" />
+            </div>
+            <div>
+              <label for="perfilAbdominal">Circunferência abdominal (cm)</label>
+              <input id="perfilAbdominal" type="number" step="0.1" placeholder="Ex.: 88" />
+            </div>
+
+            <div>
+              <label for="perfilDiabetes">Possui diabetes?</label>
+              <select id="perfilDiabetes">
+                <option value="">Selecione</option>
+                <option>Não</option>
+                <option>Sim</option>
+                <option>Pré-diabetes</option>
+              </select>
+            </div>
+            <div>
+              <label for="perfilHipertensao">Possui hipertensão?</label>
+              <select id="perfilHipertensao">
+                <option value="">Selecione</option>
+                <option>Não</option>
+                <option>Sim</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="perfilFuma">Fuma?</label>
+              <select id="perfilFuma">
+                <option value="">Selecione</option>
+                <option>Nunca</option>
+                <option>Ex-fumante</option>
+                <option>Fumante atual</option>
+              </select>
+            </div>
+            <div>
+              <label for="perfilAlcool">Consome álcool?</label>
+              <select id="perfilAlcool">
+                <option value="">Selecione</option>
+                <option>Nunca</option>
+                <option>Ocasionalmente</option>
+                <option>Semanalmente</option>
+                <option>Diariamente</option>
+              </select>
+            </div>
+          </div>
+          <h3>Condições de Saúde</h3>
+
+<div>
+  <label>Você já foi diagnosticado com alguma das seguintes condições?</label>
+  <div>
+    <input type="checkbox" id="condDiabetes"> <label for="condDiabetes">Diabetes</label><br>
+    <input type="checkbox" id="condPrediabetes"> <label for="condPrediabetes">Pré-diabetes</label><br>
+    <input type="checkbox" id="condHipertensao"> <label for="condHipertensao">Hipertensão arterial</label><br>
+    <input type="checkbox" id="condColesterol"> <label for="condColesterol">Colesterol alto</label><br>
+    <input type="checkbox" id="condCardiaca"> <label for="condCardiaca">Doença cardíaca</label><br>
+    <input type="checkbox" id="condRenal"> <label for="condRenal">Doença renal</label><br>
+    <input type="checkbox" id="condHepatica"> <label for="condHepatica">Doença hepática</label><br>
+    <input type="checkbox" id="condMetabolica"> <label for="condMetabolica">Síndrome metabólica</label><br>
+    <input type="text" id="condOutro" placeholder="Outro (qual?)">
+  </div>
+</div>
+
+<h3>Histórico Familiar</h3>
+
+<div>
+  <label>Algum familiar de primeiro grau possui ou possuía:</label>
+  <div>
+    <input type="checkbox" id="famDiabetes"> <label for="famDiabetes">Diabetes</label><br>
+    <input type="checkbox" id="famHipertensao"> <label for="famHipertensao">Hipertensão</label><br>
+    <input type="checkbox" id="famObesidade"> <label for="famObesidade">Obesidade</label><br>
+    <input type="checkbox" id="famInfarto"> <label for="famInfarto">Infarto ou AVC</label><br>
+    <input type="checkbox" id="famColesterol"> <label for="famColesterol">Colesterol alto</label><br>
+  </div>
+
+  <label>Quem?</label>
+  <div>
+    <input type="checkbox" id="famPai"> <label for="famPai">Pai</label><br>
+    <input type="checkbox" id="famMae"> <label for="famMae">Mãe</label><br>
+    <input type="checkbox" id="famIrmaos"> <label for="famIrmaos">Irmãos</label><br>
+    <input type="checkbox" id="famAvos"> <label for="famAvos">Avós</label>
+  </div>
+</div>
+
+<h3>Hábitos de Vida</h3>
+
+<div>
+  <label>Quantas horas dorme por noite?</label>
+  <input type="number" id="perfilSono" placeholder="Ex.: 7">
+
+  <label>Considera seu nível de estresse:</label>
+  <select id="perfilEstresse">
+    <option value="">Selecione</option>
+    <option>Baixo</option>
+    <option>Moderado</option>
+    <option>Alto</option>
+  </select>
+</div>
+          <div>
+            <label for="perfilObs">Observações gerais</label>
+            <textarea id="perfilObs" placeholder="Informações complementares do perfil de saúde"></textarea>
+          </div>
+
+          <button type="submit" class="btn-secondary">Salvar</button>
+        </form>
+        <div id="perfilMsg"></div>
+        <div class="top-actions no-print">
+  <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+</div>
+      </div>
+    </section>
+
+    <!-- REGISTRAR MEDIÇÃO -->
+    <section id="medicaoScreen" class="screen">
+      <div class="card">
+        <h2>Registrar Medição</h2>
+        <p class="small">
+          Nesta versão de teste, a data usa o calendário nativo do navegador.
+        </p>
+        <form id="medicaoForm">
+          <div class="grid-2">
+            <div>
+              <label for="medData">Data da medição</label>
+              <input id="medData" type="date" />
+            </div>
+            <div>
+              <label for="medHorario">Horário</label>
+              <input id="medHorario" type="time" />
+            </div>
+
+            <div>
+              <label for="medSistolica">Pressão sistólica (mmHg)</label>
+              <input id="medSistolica" type="number" placeholder="Ex.: 120" />
+            </div>
+            <div>
+              <label for="medDiastolica">Pressão diastólica (mmHg)</label>
+              <input id="medDiastolica" type="number" placeholder="Ex.: 80" />
+            </div>
+
+            <div>
+              <label for="medGlicemia">Glicemia (mg/dL)</label>
+              <input id="medGlicemia" type="number" step="0.1" placeholder="Ex.: 98" />
+            </div>
+            <div>
+              <label for="medFc">Frequência cardíaca (bpm)</label>
+              <input id="medFc" type="number" placeholder="Ex.: 72" />
+            </div>
+
+            <div>
+              <label for="medSaturacao">Saturação de oxigênio (%)</label>
+              <input id="medSaturacao" type="number" step="0.1" placeholder="Ex.: 97" />
+            </div>
+            <div>
+              <label for="medPeso">Peso do dia (kg)</label>
+              <input id="medPeso" type="number" step="0.1" placeholder="Ex.: 72.3" />
+            </div>
+            <h3>Identificação do Registro</h3>
+
+<div>
+  <label for="medLocal">Local da medição</label>
+  <select id="medLocal">
+    <option value="">Selecione</option>
+    <option>Casa</option>
+    <option>Clínica</option>
+    <option>Farmácia</option>
+  </select>
+</div>
+
+<h3>Monitoramento do Peso</h3>
+
+<div>
+  <label for="medAbdominal">Circunferência abdominal (cm)</label>
+  <input id="medAbdominal" type="number" step="0.1" placeholder="Ex.: 88">
+
+  <label>Observação sobre peso</label>
+  <select id="medPesoObs">
+    <option value="">Selecione</option>
+    <option>Aumentou</option>
+    <option>Diminuiu</option>
+    <option>Estável</option>
+  </select>
+</div>
+
+<h3>Monitoramento da Pressão Arterial</h3>
+
+<div>
+  <label>Pressão arterial foi medida?</label>
+  <select id="medPressaoFeita">
+    <option value="">Selecione</option>
+    <option>Sim</option>
+    <option>Não</option>
+  </select>
+
+  <label>Posição durante a medição</label>
+  <select id="medPosicao">
+    <option value="">Selecione</option>
+    <option>Sentado</option>
+    <option>Deitado</option>
+    <option>Em pé</option>
+  </select>
+
+  <label>Foi após repouso de 5 minutos?</label>
+  <select id="medRepouso">
+    <option value="">Selecione</option>
+    <option>Sim</option>
+    <option>Não</option>
+  </select>
+</div>
+
+<h3>Monitoramento da Glicemia</h3>
+
+<div>
+  <label>A glicemia foi medida?</label>
+  <select id="medGlicemiaFeita">
+    <option value="">Selecione</option>
+    <option>Sim</option>
+    <option>Não</option>
+  </select>
+
+  <label>Tipo de medição</label>
+  <select id="medTipoGlicemia">
+    <option value="">Selecione</option>
+    <option>Jejum</option>
+    <option>Antes da refeição</option>
+    <option>1 hora após refeição</option>
+    <option>2 horas após refeição</option>
+    <option>Antes de dormir</option>
+    <option>Outro</option>
+  </select>
+
+  <label>Utilizou insulina ou medicamento antes da medição?</label>
+  <select id="medMedicamento">
+    <option value="">Selecione</option>
+    <option>Sim</option>
+    <option>Não</option>
+  </select>
+</div>
+          </div>
+
+          <div>
+            <label for="medObs">Observações</label>
+            <textarea id="medObs" placeholder="Ex.: jejum, repouso, após refeição, sintomas"></textarea>
+          </div>
+
+          <button type="submit" class="btn-secondary">Salvar</button>
+        </form>
+        <div id="medicaoMsg"></div>
+        <div class="top-actions no-print">
+  <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+</div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboardScreen" class="screen">
+      <div class="top-actions no-print">
+        <button class="btn-primary" onclick="goToScreen('medicaoScreen')">Nova medição</button>
+        <button class="btn-dark" onclick="abrirTelaImpressao()">IMPRIMIR HISTÓRICO</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <h2>Resumo do Perfil</h2>
+          <div id="dashboardPerfil"></div>
+        </div>
+
+        <div class="card">
+          <h2>Última Medição</h2>
+          <div id="dashboardUltimaMedicao"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Histórico de Medições</h2>
+        <div id="dashboardHistorico"></div>
+      </div>
+
+      <div class="card">
+        <h2>Gráfico de Glicemia</h2>
+        <canvas id="glicemiaChart"></canvas>
+      </div>
+      <div class="top-actions no-print">
+  <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+</div>
+    </section>
+
+    <!-- IMPRESSÃO -->
+    <section id="printScreen" class="screen">
+      <!-- ATUALIZAÇÃO DE LOGIN E SENHA -->
+<section id="loginUpdateScreen" class="screen">
+  <div class="card" style="max-width: 520px; margin: 0 auto;">
+    <h2>Atualização de Login e Senha</h2>
+
+    <form id="loginUpdateForm">
+      <div>
+        <label for="novoLogin">Novo e-mail/login</label>
+        <input id="novoLogin" type="text" placeholder="Digite o novo e-mail ou login" />
+      </div>
+
+      <div>
+        <label for="novaSenha">Nova senha</label>
+        <input id="novaSenha" type="password" placeholder="Digite a nova senha" />
+      </div>
+
+      <button type="submit" class="btn-primary">Salvar atualização</button>
+    </form>
+
+    <div id="loginUpdateMsg"></div>
+
+    <div class="top-actions no-print" style="margin-top:16px;">
+      <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+    </div>
+  </div>
+</section>
+      <div class="top-actions no-print">
+        <button class="btn-primary" onclick="goToScreen('dashboardScreen')">Voltar ao dashboard</button>
+        <button class="btn-dark" onclick="window.print()">Gerar PDF / Imprimir</button>
+      </div>
+
+      <div class="print-area">
+        <div class="print-title">
+          <h2>Histórico Completo - Saúde em Casa</h2>
+          <p>Relatório para impressão</p>
+        </div>
+
+        <div class="card" style="box-shadow:none; border:1px solid #ddd;">
+          <h3>Perfil de Saúde</h3>
+          <div id="printPerfil"></div>
+        </div>
+
+        <div class="card" style="box-shadow:none; border:1px solid #ddd;">
+          <h3>Histórico de Medições</h3>
+          <div id="printHistorico"></div>
+        </div>
+        <div class="top-actions no-print">
+  <button class="btn-dark" onclick="goToScreen('menuScreen')">Voltar ao menu</button>
+</div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      cadastro: 'sec_cadastro',
+      perfil: 'sec_perfil',
+      medicoes: 'sec_medicoes'
+    };
+
+    let glicemiaChart = null;
+    
+
+    function goToScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+
+      if (id === 'dashboardScreen') {
+        renderDashboard();
+      }
+      if (id === 'printScreen') {
+        renderPrintScreen();
+      }
+    }
+
+    function saveData(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getData(key, fallback = null) {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }
+
+    function showMessage(targetId, text, isError = false) {
+      document.getElementById(targetId).innerHTML =
+        `<div class="message ${isError ? 'error' : 'success'}">${text}</div>`;
+    }
+
+    function cadastroHandler(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('cadNome').value.trim();
+      const email = document.getElementById('cadEmail').value.trim();
+      const senha = document.getElementById('cadSenha').value.trim();
+
+      const cadastro = {
+        nome: nome || 'teste',
+        email: email || 'teste@teste.com',
+        senha: senha || 'teste'
+      };
+
+      saveData(STORAGE_KEYS.cadastro, cadastro);
+
+      showMessage('cadastroMsg', 'Cadastro concluído. Agora faça login com teste@teste.com ou teste, e senha teste.');
+
+      setTimeout(() => {
+        goToScreen('loginScreen');
+      }, 900);
+    }
+
+    function loginHandler(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const senha = document.getElementById('loginSenha').value.trim();
+
+      const emailValido = (email === 'teste@teste.com' || email === 'teste');
+      const senhaValida = (senha === 'teste');
+
+      if (!emailValido || !senhaValida) {
+        showMessage('loginMsg', 'Login inválido. Use teste@teste.com ou teste, com senha teste.', true);
+        return;
+      }
+
+      showMessage('loginMsg', 'Login realizado com sucesso.');
+
+      setTimeout(() => {
+        preencherPerfilComCadastro();
+        goToScreen('menuScreen');
+      }, 700);
+    }
+
+    function preencherPerfilComCadastro() {
+      const cadastro = getData(STORAGE_KEYS.cadastro, {});
+      document.getElementById('perfilNome').value = cadastro.nome || 'teste';
+    }
+function loginUpdateHandler(e) {
+  e.preventDefault();
+
+  const novoLogin = document.getElementById('novoLogin').value.trim();
+  const novaSenha = document.getElementById('novaSenha').value.trim();
+
+  const cadastroAtual = getData(STORAGE_KEYS.cadastro, {});
+
+  const cadastroAtualizado = {
+    ...cadastroAtual,
+    email: novoLogin || cadastroAtual.email || 'teste@teste.com',
+    senha: novaSenha || cadastroAtual.senha || 'teste'
+  };
+
+  saveData(STORAGE_KEYS.cadastro, cadastroAtualizado);
+
+  showMessage('loginUpdateMsg', 'Login e senha atualizados com sucesso.');
+}
+    function perfilHandler(e) {
+      e.preventDefault();
+
+      const perfil = {
+        nome: document.getElementById('perfilNome').value.trim(),
+        nascimento: document.getElementById('perfilNascimento').value,
+        sexo: document.getElementById('perfilSexo').value,
+        altura: document.getElementById('perfilAltura').value,
+        pesoBase: document.getElementById('perfilPesoBase').value,
+        abdominal: document.getElementById('perfilAbdominal').value,
+        diabetes: document.getElementById('perfilDiabetes').value,
+        hipertensao: document.getElementById('perfilHipertensao').value,
+        fuma: document.getElementById('perfilFuma').value,
+        alcool: document.getElementById('perfilAlcool').value,
+        observacoes: document.getElementById('perfilObs').value.trim()
+      };
+
+      saveData(STORAGE_KEYS.perfil, perfil);
+      showMessage('perfilMsg', 'Perfil salvo com sucesso.');
+
+      setTimeout(() => {
+        setTodayDefault();
+        goToScreen('medicaoScreen');
+      }, 700);
+    }
+
+    function setTodayDefault() {
+      const hoje = new Date().toISOString().split('T')[0];
+      const agora = new Date();
+      const hh = String(agora.getHours()).padStart(2, '0');
+      const mm = String(agora.getMinutes()).padStart(2, '0');
+      document.getElementById('medData').value = hoje;
+      document.getElementById('medHorario').value = `${hh}:${mm}`;
+    }
+
+    function medicaoHandler(e) {
+      e.preventDefault();
+
+      const medicao = {
+        data: document.getElementById('medData').value,
+        horario: document.getElementById('medHorario').value,
+        sistolica: document.getElementById('medSistolica').value,
+        diastolica: document.getElementById('medDiastolica').value,
+        glicemia: document.getElementById('medGlicemia').value,
+        frequencia: document.getElementById('medFc').value,
+        saturacao: document.getElementById('medSaturacao').value,
+        peso: document.getElementById('medPeso').value,
+        observacoes: document.getElementById('medObs').value.trim()
+      };
+
+      const medicoes = getData(STORAGE_KEYS.medicoes, []);
+      medicoes.push(medicao);
+      saveData(STORAGE_KEYS.medicoes, medicoes);
+
+      showMessage('medicaoMsg', 'Medição salva com sucesso.');
+
+      setTimeout(() => {
+        goToScreen('dashboardScreen');
+      }, 700);
+    }
+
+    function classificarPressao(s, d) {
+      const sis = Number(s);
+      const dia = Number(d);
+      if (!sis || !dia) return '-';
+      if (sis >= 180 || dia >= 120) return 'Crise hipertensiva';
+      if (sis >= 140 || dia >= 90) return 'Hipertensão';
+      if (sis >= 120 || dia >= 80) return 'Pressão elevada';
+      return 'Normal';
+    }
+
+    function classificarGlicemia(g) {
+      const val = Number(g);
+      if (!val) return '-';
+      if (val >= 126) return 'Elevada';
+      if (val >= 100) return 'Alterada';
+      return 'Normal';
+    }
+
+    function renderDashboard() {
+      const perfil = getData(STORAGE_KEYS.perfil, {});
+      const medicoes = getData(STORAGE_KEYS.medicoes, []);
+      const ultima = medicoes.length ? medicoes[medicoes.length - 1] : null;
+
+      document.getElementById('dashboardPerfil').innerHTML = `
+        <div class="summary-box"><strong>Nome:</strong> ${perfil.nome || '-'}</div>
+        <div class="summary-box"><strong>Data de nascimento:</strong> ${perfil.nascimento || '-'}</div>
+        <div class="summary-box"><strong>Sexo:</strong> ${perfil.sexo || '-'}</div>
+        <div class="summary-box"><strong>Altura:</strong> ${perfil.altura ? perfil.altura + ' cm' : '-'}</div>
+        <div class="summary-box"><strong>Peso base:</strong> ${perfil.pesoBase ? perfil.pesoBase + ' kg' : '-'}</div>
+        <div class="summary-box"><strong>Circ. abdominal:</strong> ${perfil.abdominal ? perfil.abdominal + ' cm' : '-'}</div>
+        <div class="summary-box"><strong>Diabetes:</strong> ${perfil.diabetes || '-'}</div>
+        <div class="summary-box"><strong>Hipertensão:</strong> ${perfil.hipertensao || '-'}</div>
+        <div class="summary-box"><strong>Fuma:</strong> ${perfil.fuma || '-'}</div>
+        <div class="summary-box"><strong>Álcool:</strong> ${perfil.alcool || '-'}</div>
+        <div class="summary-box"><strong>Observações:</strong> ${perfil.observacoes || '-'}</div>
+      `;
+
+      document.getElementById('dashboardUltimaMedicao').innerHTML = ultima ? `
+        <div class="summary-box"><strong>Data:</strong> ${ultima.data || '-'}</div>
+        <div class="summary-box"><strong>Horário:</strong> ${ultima.horario || '-'}</div>
+        <div class="summary-box"><strong>Pressão:</strong> ${ultima.sistolica || '-'} / ${ultima.diastolica || '-'} mmHg</div>
+        <div class="summary-box"><strong>Classificação da pressão:</strong> ${classificarPressao(ultima.sistolica, ultima.diastolica)}</div>
+        <div class="summary-box"><strong>Glicemia:</strong> ${ultima.glicemia || '-'} mg/dL</div>
+        <div class="summary-box"><strong>Classificação da glicemia:</strong> ${classificarGlicemia(ultima.glicemia)}</div>
+        <div class="summary-box"><strong>Frequência cardíaca:</strong> ${ultima.frequencia || '-'} bpm</div>
+        <div class="summary-box"><strong>Saturação:</strong> ${ultima.saturacao || '-'} %</div>
+        <div class="summary-box"><strong>Peso:</strong> ${ultima.peso || '-'} kg</div>
+        <div class="summary-box"><strong>Observações:</strong> ${ultima.observacoes || '-'}</div>
+      ` : `<p>Nenhuma medição registrada.</p>`;
+
+      if (!medicoes.length) {
+        document.getElementById('dashboardHistorico').innerHTML = '<p>Nenhuma medição registrada.</p>';
+      } else {
+        let tabela = `
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Sistólica</th>
+                <th>Diastólica</th>
+                <th>Pressão</th>
+                <th>Glicemia</th>
+                <th>Glicemia</th>
+                <th>FC</th>
+                <th>Sat.</th>
+                <th>Peso</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        medicoes.forEach(m => {
+          tabela += `
+            <tr>
+              <td>${m.data || '-'}</td>
+              <td>${m.horario || '-'}</td>
+              <td>${m.sistolica || '-'}</td>
+              <td>${m.diastolica || '-'}</td>
+              <td>${classificarPressao(m.sistolica, m.diastolica)}</td>
+              <td>${m.glicemia || '-'}</td>
+              <td>${classificarGlicemia(m.glicemia)}</td>
+              <td>${m.frequencia || '-'}</td>
+              <td>${m.saturacao || '-'}</td>
+              <td>${m.peso || '-'}</td>
+            </tr>
+          `;
+        });
+        tabela += '</tbody></table>';
+        document.getElementById('dashboardHistorico').innerHTML = tabela;
+      }
+
+      renderChart(medicoes);
+    }
+
+    function renderChart(medicoes) {
+      const ctx = document.getElementById('glicemiaChart').getContext('2d');
+      if (glicemiaChart) glicemiaChart.destroy();
+
+      glicemiaChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: medicoes.map(m => m.data || ''),
+          datasets: [{
+            label: 'Glicemia (mg/dL)',
+            data: medicoes.map(m => Number(m.glicemia || 0)),
+            borderWidth: 2,
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Evolução da glicemia'
+            }
+          }
+        }
+      });
+    }
+
+    function abrirTelaImpressao() {
+      goToScreen('printScreen');
+    }
+
+    function renderPrintScreen() {
+      const perfil = getData(STORAGE_KEYS.perfil, {});
+      const medicoes = getData(STORAGE_KEYS.medicoes, []);
+
+      document.getElementById('printPerfil').innerHTML = `
+        <p><strong>Nome:</strong> ${perfil.nome || '-'}</p>
+        <p><strong>Data de nascimento:</strong> ${perfil.nascimento || '-'}</p>
+        <p><strong>Sexo:</strong> ${perfil.sexo || '-'}</p>
+        <p><strong>Altura:</strong> ${perfil.altura ? perfil.altura + ' cm' : '-'}</p>
+        <p><strong>Peso base:</strong> ${perfil.pesoBase ? perfil.pesoBase + ' kg' : '-'}</p>
+        <p><strong>Circunferência abdominal:</strong> ${perfil.abdominal ? perfil.abdominal + ' cm' : '-'}</p>
+        <p><strong>Diabetes:</strong> ${perfil.diabetes || '-'}</p>
+        <p><strong>Hipertensão:</strong> ${perfil.hipertensao || '-'}</p>
+        <p><strong>Fuma:</strong> ${perfil.fuma || '-'}</p>
+        <p><strong>Consumo de álcool:</strong> ${perfil.alcool || '-'}</p>
+        <p><strong>Observações gerais:</strong> ${perfil.observacoes || '-'}</p>
+      `;
+
+      if (!medicoes.length) {
+        document.getElementById('printHistorico').innerHTML = '<p>Nenhuma medição registrada.</p>';
+        return;
+      }
+
+      let tabela = `
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>PA Sistólica</th>
+              <th>PA Diastólica</th>
+              <th>Class. Pressão</th>
+              <th>Glicemia</th>
+              <th>Class. Glicemia</th>
+              <th>FC</th>
+              <th>Sat.</th>
+              <th>Peso</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      medicoes.forEach(m => {
+        tabela += `
+          <tr>
+            <td>${m.data || '-'}</td>
+            <td>${m.horario || '-'}</td>
+            <td>${m.sistolica || '-'}</td>
+            <td>${m.diastolica || '-'}</td>
+            <td>${classificarPressao(m.sistolica, m.diastolica)}</td>
+            <td>${m.glicemia || '-'}</td>
+            <td>${classificarGlicemia(m.glicemia)}</td>
+            <td>${m.frequencia || '-'}</td>
+            <td>${m.saturacao || '-'}</td>
+            <td>${m.peso || '-'}</td>
+            <td>${m.observacoes || '-'}</td>
+          </tr>
+        `;
+      });
+      tabela += '</tbody></table>';
+      document.getElementById('printHistorico').innerHTML = tabela;
+    }
+
+    document.getElementById('cadastroForm').addEventListener('submit', cadastroHandler);
+    document.getElementById('loginForm').addEventListener('submit', loginHandler);
+    document.getElementById('perfilForm').addEventListener('submit', perfilHandler);
+    document.getElementById('medicaoForm').addEventListener('submit', medicaoHandler);
+    document.getElementById('loginUpdateForm').addEventListener('submit', loginUpdateHandler);
+      </script>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+</body>
+</html>
