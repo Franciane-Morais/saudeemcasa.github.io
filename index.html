@@ -19,6 +19,44 @@
       padding: 18px 24px;
       text-align: center;
     }
+    .header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-text h1,
+.header-text p {
+  margin: 0;
+}
+
+.header-text p {
+  margin-top: 6px;
+}
+
+.accessibility-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-header {
+  width: auto;
+  min-width: 52px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-header:hover {
+  background: rgba(255,255,255,0.25);
+}
     .container {
       max-width: 1100px;
       margin: 24px auto;
@@ -193,6 +231,44 @@ body.alto-contraste .btn-dark {
   border: 2px solid #fff !important;
 }
 
+    body.tema-noite {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.tema-noite header {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+body.tema-noite .card,
+body.tema-noite .print-area,
+body.tema-noite table,
+body.tema-noite th,
+body.tema-noite td,
+body.tema-noite input,
+body.tema-noite select,
+body.tema-noite textarea {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.tema-noite .hint,
+body.tema-noite .summary-box {
+  background: #1a1a1a !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.tema-noite .small,
+body.tema-noite p,
+body.tema-noite label,
+body.tema-noite h1,
+body.tema-noite h2,
+body.tema-noite h3 {
+  color: #fff !important;
+}
 body.leitura-facilitada {
   letter-spacing: 0.4px;
   line-height: 1.8;
