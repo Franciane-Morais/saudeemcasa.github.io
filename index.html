@@ -7,11 +7,17 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; }
-        body {
+
+    :root {
+  --font-scale: 1;
+}
+    body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      color: #1f2937;
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #1f2937;
+  font-size: calc(16px * var(--font-scale, 1));
+  transition: background 0.3s ease, color 0.3s ease;
     }
     header {
       background: #0f62fe;
@@ -1468,7 +1474,7 @@ function aplicarPreferenciasVisuais() {
    document.getElementById('loginForm').addEventListener('submit', loginHandler);
    document.getElementById('perfilForm').addEventListener('submit', perfilHandler);
    document.getElementById('medicaoForm').addEventListener('submit', medicaoHandler);
-  document.getElementById('loginUpdateForm').addEventListener('submit', loginUpdateHandler);
+   document.getElementById('loginUpdateForm').addEventListener('submit', loginUpdateHandler);
 
 aplicarPreferenciasVisuais();
       </script>
